@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GSM Caller — Arduino SIM800L</title>
+  <link rel="icon" href="phone-icon-telephone-icon-symbol-for-app-and-messenger-vector.jpg" type="image/png">
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">GSM<span>_</span>CALLER</a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Inicio</a></li>
+    <li><a href="detalle.html">Documentación</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<header class="page-header container fade-up">
+  <div class="tag">// Proyecto Arduino — GSM</div>
+  <h1>
+    <span class="glitch-wrap" data-text="MARCADOR">MARCADOR</span><br>
+    <span class="hi">AUTOMÁTICO</span>
+  </h1>
+  <p>Un teléfono de emergencia de un solo botón usando Arduino y el módulo SIM800L. Simple, confiable, autónomo.</p>
+</header>
+
+<!-- FLIP CARDS SECTION -->
+<section style="padding: 2rem 0 3rem">
+  <div class="container">
+    <p class="section-label fade-up delay-1">// Vista general</p>
+    <h2 class="section-title fade-up delay-2">¿De qué trata el proyecto?</h2>
+
+    <div class="flip-grid fade-up delay-3">
+      <!-- Card 1 -->
+      <div class="flip-card-wrap" data-panel="panel-concepto">
+        <div class="flip-card">
+          <div class="flip-front">
+            <div class="flip-icon">📡</div>
+            <h3>El Concepto</h3>
+            <p class="flip-hint">Click para ver más</p>
+          </div>
+          <div class="flip-back" id="panel-concepto">
+            <h3>Marcador de Emergencia</h3>
+            <p>Un dispositivo autónomo que, al presionar un botón físico, realiza automáticamente una llamada de voz a un número predefinido. Sin pantalla, sin teclado, sin complicaciones.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="flip-card-wrap" data-panel="panel-hardware">
+        <div class="flip-card">
+          <div class="flip-front">
+            <div class="flip-icon">🔧</div>
+            <h3>Hardware</h3>
+            <p class="flip-hint">Click para ver más</p>
+          </div>
+          <div class="flip-back" id="panel-hardware">
+            <h3>Componentes Clave</h3>
+            <ul style="margin-left:1.2rem; color: var(--text);">
+              <li>Arduino UNO / Nano</li>
+              <li>Módulo GSM SIM800L</li>
+              <li>Reductor LM2596 (4V)</li>
+              <li>Micrófono + altavoz</li>
+              <li>Un botón momentáneo</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="flip-card-wrap" data-panel="panel-como">
+        <div class="flip-card">
+          <div class="flip-front">
+            <div class="flip-icon">⚙️</div>
+            <h3>¿Cómo Funciona?</h3>
+            <p class="flip-hint">Click para ver más</p>
+          </div>
+          <div class="flip-back" id="panel-como">
+            <h3>Comandos AT</h3>
+            <p>El Arduino envía comandos AT al módulo GSM vía Serial (TX/RX). Con <code>ATD+número;</code> inicia la llamada y con <code>ATH;</code> la corta.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="flip-card-wrap" data-panel="panel-uso">
+        <div class="flip-card">
+          <div class="flip-front">
+            <div class="flip-icon">🚨</div>
+            <h3>Casos de Uso</h3>
+            <p class="flip-hint">Click para ver más</p>
+          </div>
+          <div class="flip-back" id="panel-uso">
+            <h3>Aplicaciones Reales</h3>
+            <ul style="margin-left:1.2rem; color: var(--text);">
+              <li>Botón de emergencia para adultos mayores</li>
+              <li>Sistema de alarma simple</li>
+              <li>Notificador de intrusión</li>
+              <li>Alertas de sensores remotos</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="flip-card-wrap" data-panel="panel-energia">
+        <div class="flip-card">
+          <div class="flip-front">
+            <div class="flip-icon">⚡</div>
+            <h3>Energía</h3>
+            <p class="flip-hint">Click para ver más</p>
+          </div>
+          <div class="flip-back" id="panel-energia">
+            <h3>Fuente de Poder</h3>
+            <p>El SIM800L exige una fuente externa estable. Nunca uses el pin 5V del Arduino: las llamadas consumen picos de corriente que reinician el micro.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="flip-card-wrap" data-panel="panel-audio">
+        <div class="flip-card">
+          <div class="flip-front">
+            <div class="flip-icon">🎙️</div>
+            <h3>Audio</h3>
+            <p class="flip-hint">Click para ver más</p>
+          </div>
+          <div class="flip-back" id="panel-audio">
+            <h3>Calidad de Voz</h3>
+            <p>Usa micrófonos de condensador soldados cerca de la placa para evitar interferencias del módulo GSM (ruido "clic-clic" clásico). Antena helicoidal o externa recomendada.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CÓDIGO RÁPIDO -->
+<section style="padding: 1rem 0 3rem"> 
+  <div class="container">
+    <hr class="divider" />
+    <p class="section-label fade-up">// Muestra de código</p>
+    <h2 class="section-title fade-up delay-1">El Comando Esencial</h2>
+
+    <div class="grid-2 fade-up delay-2" style="align-items:start; gap:2rem">
+      <div>
+        <p style="color:var(--muted); margin-bottom:1rem;">
+          Toda la magia ocurre en tres líneas. El Arduino abre comunicación serial con el módulo y le ordena marcar el número.
+        </p>
+        <pre>
+// Iniciar llamada
+Serial.println("ATD+5411XXXXXXXX;");
+
+// Esperar...
+
+// Colgar
+Serial.println("ATH;");</pre>
+        <p style="margin-top:1rem; color:var(--muted); font-size:0.9rem;">
+          El punto y coma final en <code>ATD</code> le indica al módulo que es una llamada de voz, no de datos.
+        </p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:1rem">
+        <div class="card">
+          <span class="badge badge-green"><span class="dot-live"></span>TX → SIM800L</span>
+          <p style="margin-top:0.6rem; font-family:'Share Tech Mono',monospace; color:var(--green); font-size:0.85rem;">ATD+54911234567;<br>OK<br>CONNECT</p>
+        </div>
+        <div class="card">
+          <span class="badge badge-orange">Botón físico</span>
+          <p style="margin-top:0.6rem; color:var(--muted); font-size:0.9rem;">
+            Un simple <code>digitalRead(PIN_BOTON)</code> dispara la secuencia. Al soltar o presionar de nuevo, envía <code>ATH;</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="padding: 1rem 0 4rem">
+  <div class="container fade-up">
+    <div class="card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5rem; border-color: var(--accent); box-shadow: var(--glow);">
+      <div>
+        <p class="section-label">// Siguiente paso</p>
+        <h2 style="font-family:'Orbitron',monospace; font-size:1.4rem; color:#fff;">Documentación Completa</h2>
+        <p style="color:var(--muted); margin-top:0.4rem;">Esquemas de conexión, código fuente completo, galería de imágenes y simulador en línea.</p>
+      </div>
+      <a href="detalle.html" class="btn"><span>➜ &nbsp;Ver documentación</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>GSM_CALLER &nbsp;//  César Arévalo/Kerlin Garcia &nbsp;© 2025</span>
+  <a href="detalle.html" style="color:var(--accent); text-decoration:none; font-family:'Share Tech Mono',monospace;">detalle.html →</a>
+</footer>
+
+<style>
+/* FLIP CARDS */
+.flip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.4rem;
+}
+
+@media (max-width: 700px) {
+  .flip-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .flip-grid { grid-template-columns: 1fr; }
+}
+
+.flip-card-wrap {
+  perspective: 900px;
+  cursor: pointer;
+}
+
+.flip-card {
+  width: 100%;
+  min-height: 190px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+  border-radius: 4px;
+}
+
+.flip-card-wrap.flipped .flip-card {
+  transform: rotateY(180deg);
+}
+
+.flip-front,
+.flip-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.5rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--surface);
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.flip-front:hover { border-color: var(--accent); box-shadow: var(--glow); }
+
+.flip-front {
+  align-items: center;
+  text-align: center;
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+  border-color: var(--accent);
+  box-shadow: var(--glow);
+  background: var(--surface2);
+}
+
+.flip-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.7rem;
+}
+
+.flip-front h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.flip-hint {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+}
+
+.flip-back h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 0.7rem;
+}
+
+.flip-back p, .flip-back li {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.flip-back code {
+  background: rgba(0,229,255,0.08);
+  color: var(--accent);
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+}
+</style>
+
+<script>
+  // FLIP CARDS
+  document.querySelectorAll('.flip-card-wrap').forEach(card => {
+    card.addEventListener('click', () => {
+      card.classList.toggle('flipped');
+    });
+  });
+
+  // INTERSECTION OBSERVER para fade-up
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animationPlayState = 'running';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => {
+    el.style.animationPlayState = 'paused';
+    obs.observe(el);
+  });
+</script>
+
+</body>
+</html>

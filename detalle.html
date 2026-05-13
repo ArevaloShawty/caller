@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="phone-icon-telephone-icon-symbol-for-app-and-messenger-vector.jpg" type="image/png">
+  <title>Documentación Técnica — GSM Caller</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">GSM<span>_</span>CALLER</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="detalle.html" class="active">Documentación</a></li>
+  </ul>
+</nav>
+
+<!-- HEADER -->
+<header class="page-header container fade-up">
+  <div class="tag">// Documentación técnica</div>
+  <h1>Referencia <span class="hi">Completa</span></h1>
+  <p>Esquemas, código fuente, galería de imágenes y simulador interactivo del proyecto Arduino GSM Caller.</p>
+</header>
+
+<!-- TABS SECTION -->
+<section style="padding: 1rem 0 5rem">
+  <div class="container">
+
+    <!-- TAB BAR -->
+    <div class="tabs fade-up delay-1" role="tablist">
+      <button class="tab-btn active" data-tab="hardware" role="tab">Hardware</button>
+      <button class="tab-btn" data-tab="codigo"   role="tab">Código Fuente</button>
+      <button class="tab-btn" data-tab="galeria"  role="tab">Galería</button>
+      <button class="tab-btn" data-tab="sim"      role="tab">Simulador</button>
+    </div>
+
+    <!-- ═══════════════ TAB: HARDWARE ═══════════════ -->
+    <div class="tab-panel active fade-up delay-2" id="tab-hardware">
+
+      <p class="section-label">// Componentes</p>
+      <h2 class="section-title">Hardware Necesario</h2>
+
+      <div class="grid-2" style="margin-bottom:2rem; align-items:start">
+        <div>
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>Componente</th>
+                <th>Función</th>
+                <th>Notas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Arduino UNO / Nano</strong></td>
+                <td>Cerebro del sistema</td>
+                <td><span class="badge badge-cyan">Requerido</span></td>
+              </tr>
+              <tr>
+                <td><strong>SIM800L</strong></td>
+                <td>Módulo GSM/GPRS</td>
+                <td><span class="badge badge-orange">Crítico</span></td>
+              </tr>
+              <tr>
+                <td><strong>LM2596 (Buck)</strong></td>
+                <td>Reducir voltaje a 4V</td>
+                <td><span class="badge badge-orange">Crítico</span></td>
+              </tr>
+              <tr>
+                <td><strong>Micrófono condensador</strong></td>
+                <td>Entrada de voz</td>
+                <td>Soldar cerca de la placa</td>
+              </tr>
+              <tr>
+                <td><strong>Altavoz 8Ω / 0.5W</strong></td>
+                <td>Salida de audio</td>
+                <td>Pines SPK+ / SPK−</td>
+              </tr>
+              <tr>
+                <td><strong>Botón momentáneo</strong></td>
+                <td>Disparar llamada</td>
+                <td>Con resistencia 10kΩ pull-down</td>
+              </tr>
+              <tr>
+                <td><strong>Antena helicoidal / IPEX</strong></td>
+                <td>Señal celular</td>
+                <td>Externa = mejor señal</td>
+              </tr>
+              <tr>
+                <td><strong>Fuente 7-12V / 2A</strong></td>
+                <td>Alimentación externa</td>
+                <td><span class="badge badge-orange">No usar pin 5V</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:1.2rem">
+          <div class="card">
+            <p class="section-label">// Diagrama de pines (SIM800L ↔ Arduino)</p>
+            <pre style="margin-top:0.5rem">
+SIM800L        Arduino
+────────────────────────
+VCC  ──────→  LM2596 (4V OUT)
+GND  ──────→  GND
+TXD  ──────→  PIN 10 (SoftSerial RX)
+RXD  ──────→  PIN 11 (SoftSerial TX)
+RST  ──────→  PIN 12 (opcional)
+
+MIC+ ──────→  Micrófono (+)
+MIC- ──────→  GND
+SPK+ ──────→  Altavoz (+)
+SPK- ──────→  Altavoz (−)
+
+Botón: PIN 2 → 10kΩ → GND</pre>
+          </div>
+
+          <div class="card" style="border-color:var(--accent2);">
+            <p class="section-label" style="color:var(--accent2)">⚠ Advertencias</p>
+            <ul style="margin-left:1.2rem; margin-top:0.5rem; font-size:0.9rem; color:var(--muted); line-height:1.9">
+              <li>El SIM800L consume hasta <strong style="color:#fff">2A en picos</strong> durante llamadas.</li>
+              <li>Nunca alimentar desde el pin 5V del Arduino (máx. 500mA).</li>
+              <li>El voltaje ideal del módulo es <strong style="color:#fff">3.7–4.2V</strong>.</li>
+              <li>El ruido "clic-clic" viene de la interferencia RF del GSM con el audio.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ TAB: CÓDIGO ═══════════════ -->
+    <div class="tab-panel" id="tab-codigo">
+
+      <p class="section-label">// Sketch Arduino</p>
+      <h2 class="section-title">Código Fuente Completo</h2>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <p style="color:var(--muted); font-size:0.9rem">Copia este sketch en el IDE de Arduino. Ajusta <code>NUMERO_DESTINO</code> y los pines según tu conexión.</p>
+      </div>
+
+      <pre>
+#include &lt;SoftwareSerial.h&gt;
+
+// ─── Configuración de pines ──────────────────────
+#define PIN_TX      11      // Arduino TX → SIM800L RXD
+#define PIN_RX      10      // Arduino RX ← SIM800L TXD
+#define PIN_BOTON    2      // Botón de llamada
+#define PIN_LED     13      // LED de estado (built-in)
+
+// ─── Número de destino ───────────────────────────
+const char* NUMERO_DESTINO = "+5411XXXXXXXX";  // ← CAMBIAR
+
+// ─── Software Serial ─────────────────────────────
+SoftwareSerial gsm(PIN_RX, PIN_TX);
+
+// ─── Variables de estado ─────────────────────────
+bool enLlamada     = false;
+bool botonAnterior = HIGH;
+
+// ─────────────────────────────────────────────────
+void setup() {
+  pinMode(PIN_BOTON, INPUT_PULLUP);
+  pinMode(PIN_LED,   OUTPUT);
+
+  Serial.begin(9600);
+  gsm.begin(9600);
+
+  Serial.println("Iniciando modulo GSM...");
+  delay(3000);               // Esperar que el modulo arranque
+
+  iniciarGSM();
+}
+
+// ─────────────────────────────────────────────────
+void loop() {
+  bool botonActual = digitalRead(PIN_BOTON);
+
+  // Detectar flanco descendente (botón presionado)
+  if (botonAnterior == HIGH &amp;&amp; botonActual == LOW) {
+    delay(50);  // Debounce
+
+    if (!enLlamada) {
+      hacerLlamada();
+    } else {
+      colgarLlamada();
+    }
+  }
+
+  botonAnterior = botonActual;
+
+  // Leer respuestas del modulo (para debug)
+  while (gsm.available()) {
+    Serial.write(gsm.read());
+  }
+}
+
+// ─────────────────────────────────────────────────
+void iniciarGSM() {
+  enviarComando("AT",        "OK", 1000);   // Verificar comunicacion
+  enviarComando("ATE0",      "OK", 1000);   // Desactivar eco
+  enviarComando("AT+CMGF=1", "OK", 1000);   // Modo texto SMS
+  Serial.println("SIM800L listo.");
+}
+
+// ─────────────────────────────────────────────────
+void hacerLlamada() {
+  Serial.print("Llamando a: ");
+  Serial.println(NUMERO_DESTINO);
+
+  String cmd = "ATD";
+  cmd += NUMERO_DESTINO;
+  cmd += ";";           // Punto y coma = llamada de VOZ
+  gsm.println(cmd);
+
+  enLlamada = true;
+  digitalWrite(PIN_LED, HIGH);
+}
+
+// ─────────────────────────────────────────────────
+void colgarLlamada() {
+  Serial.println("Colgando...");
+  gsm.println("ATH");
+
+  enLlamada = false;
+  digitalWrite(PIN_LED, LOW);
+}
+
+// ─────────────────────────────────────────────────
+void enviarComando(const char* cmd, const char* respuesta, int timeout) {
+  gsm.println(cmd);
+  long inicio = millis();
+  String buffer = "";
+
+  while (millis() - inicio &lt; timeout) {
+    while (gsm.available()) {
+      buffer += (char)gsm.read();
+    }
+    if (buffer.indexOf(respuesta) != -1) break;
+  }
+
+  Serial.print("[GSM] ");
+  Serial.println(buffer);
+}</pre>
+
+      <div class="grid-2" style="margin-top:1.5rem; gap:1.2rem">
+        <div class="card">
+          <p class="section-label">// Flujo de estados</p>
+          <pre style="margin-top:0.5rem; border-left-color: var(--accent)">
+[IDLE]
+  ↓ botón presionado
+[LLAMANDO] → ATD+nro;
+  ↓ conexión establecida
+[EN LLAMADA]
+  ↓ botón presionado
+[COLGANDO] → ATH
+  ↓
+[IDLE]</pre>
+        </div>
+        <div class="card">
+          <p class="section-label">// Comandos AT útiles</p>
+          <table class="spec-table" style="margin-top:0.5rem; font-size:0.82rem">
+            <thead><tr><th>Comando</th><th>Función</th></tr></thead>
+            <tbody>
+              <tr><td><code>AT</code></td><td>Test de comunicación</td></tr>
+              <tr><td><code>ATD+nro;</code></td><td>Marcar número de voz</td></tr>
+              <tr><td><code>ATH</code></td><td>Colgar llamada</td></tr>
+              <tr><td><code>ATA</code></td><td>Atender llamada entrante</td></tr>
+              <tr><td><code>AT+CSQ</code></td><td>Fuerza de señal</td></tr>
+              <tr><td><code>AT+CREG?</code></td><td>Estado de registro en red</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ TAB: GALERÍA ═══════════════ -->
+    <div class="tab-panel" id="tab-galeria">
+
+      <p class="section-label">// Imagen con IA</p>
+      <h2 class="section-title">Imágenes &amp; Esquemas</h2>
+
+
+    
+          <a><img src="Gemini_Generated_Image_flxea1flxea1flxe.png" alt="Prototipo" style="max-width:100%; height:auto"></a>
+        
+
+     
+    </div>
+
+    <!-- ═══════════════ TAB: SIMULADOR ═══════════════ -->
+    <div class="tab-panel" id="tab-sim">
+
+      <p class="section-label">// Simulación online</p>
+      <h2 class="section-title">Ver Proyecto en Tinkercad</h2>
+
+      <div class="card" style="margin-bottom:2rem; border-color: var(--accent); box-shadow: var(--glow);">
+        <p style="color:var(--muted); font-size:0.95rem; margin-bottom:1.2rem;">
+          El circuito completo está disponible en <strong style="color:#fff">Tinkercad Circuits</strong>. Podés abrir la simulación en tu navegador sin instalar nada.
+          Tinkercad no soporta el módulo SIM800L real, por lo que la simulación muestra la lógica del Arduino y el botón en un entorno equivalente.
+        </p>
+        <a
+          href="https://www.tinkercad.com/things/g7Leegko6RJ/editel?returnTo=%2Fdashboard&sharecode=G6w2lFjC1TW1a9w4TwgjCfWODX4w_J2uQcAssurRbr4"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-orange"
+          style="display:inline-flex">
+          <span>⬡ &nbsp;Abrir en Tinkercad</span>
+        </a>
+      </div>
+
+      <div class="grid-2" style="align-items:start; gap:1.2rem">
+        <div class="card">
+          <p class="section-label">// Qué simular</p>
+          <ul style="margin-left:1.2rem; margin-top:0.5rem; font-size:0.9rem; color:var(--muted); line-height:2">
+            <li>Lógica del botón (debounce incluido)</li>
+            <li>Comunicación SoftwareSerial</li>
+            <li>LED de estado de llamada</li>
+            <li>Monitor Serial con respuestas AT</li>
+          </ul>
+        </div>
+        <div class="card">
+          <p class="section-label">// Limitaciones de Tinkercad</p>
+          <ul style="margin-left:1.2rem; margin-top:0.5rem; font-size:0.9rem; color:var(--muted); line-height:2">
+            <li>SIM800L no disponible en la librería</li>
+            <li>No simula llamadas de voz reales</li>
+            <li>Se puede usar un Serial emulado</li>
+            <li>La lógica de control sí es 100% válida</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem;">
+        <p class="section-label">// Vista previa</p>
+       <a><img src="Tremendous Kup-Elzing.png" alt="Prototipo" style="max-width:100%; height:auto"></a>
+    </div>
+    <!-- FIN TABS -->
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>GSM_CALLER &nbsp;// César Arévalo/Kerlin Garcia &nbsp;© 2025</span>
+  <a href="index.html" style="color:var(--accent); text-decoration:none; font-family:'Share Tech Mono',monospace;">← index.html</a>
+</footer>
+
+<style>
+/* GALLERY */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 700px) {
+  .gallery-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.gallery-item {
+  cursor: zoom-in;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.gallery-item:hover {
+  border-color: var(--accent);
+  box-shadow: var(--glow);
+  transform: translateY(-3px);
+}
+</style>
+
+<script>
+  /* ── TABS ── */
+  const tabBtns   = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabPanels.forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      const panel = document.getElementById('tab-' + target);
+      panel.classList.add('active');
+
+      // Entrada animada del panel
+      panel.style.opacity = '0';
+      panel.style.transform = 'translateY(14px)';
+      requestAnimationFrame(() => {
+        panel.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+        panel.style.opacity = '1';
+        panel.style.transform = 'translateY(0)';
+      });
+    });
+  });
+
+  /* ── MODAL GALERÍA ── */
+  function abrirModal(el) {
+    const caption = el.dataset.caption || '';
+    document.getElementById('modal-caption').textContent = caption;
+    const modal = document.getElementById('modal-img');
+    modal.style.display = 'flex';
+  }
+
+  function cerrarModal() {
+    document.getElementById('modal-img').style.display = 'none';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') cerrarModal();
+  });
+
+  /* ── FADE-UP ── */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.style.animationPlayState = 'running';
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => {
+    el.style.animationPlayState = 'paused';
+    obs.observe(el);
+  });
+</script>
+
+</body>
+</html>
